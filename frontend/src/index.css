@@ -1,0 +1,228 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* Base styles */
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-text-primary antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  html {
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+}
+
+/* Light theme overrides */
+.light {
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
+.light .bg-background {
+  background-color: #ffffff !important;
+}
+
+.light .bg-surface {
+  background-color: #f8fafc !important;
+}
+
+.light .bg-card {
+  background-color: #ffffff !important;
+}
+
+.light .border-border {
+  border-color: #e2e8f0 !important;
+}
+
+.light .text-text-primary {
+  color: #0f172a !important;
+}
+
+.light .text-text-secondary {
+  color: #475569 !important;
+}
+
+.light .text-text-muted {
+  color: #64748b !important;
+}
+
+.light .shadow-glass {
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+.light .shadow-glass-sm {
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Custom scrollbar */
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #4b5563 #1f2937;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: #1f2937;
+    border-radius: 3px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #4b5563;
+    border-radius: 3px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+  }
+
+  .light .scrollbar-thin {
+    scrollbar-color: #d1d5db #f3f4f6;
+  }
+  
+  .light .scrollbar-thin::-webkit-scrollbar-track {
+    background: #f3f4f6;
+  }
+  
+  .light .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+  }
+  
+  .light .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
+}
+
+/* Component styles */
+@layer components {
+  /* Glassmorphism card */
+  .glass-card {
+    @apply bg-card bg-opacity-80 backdrop-blur-xl border border-border rounded-2xl shadow-glass transition-all duration-300;
+  }
+  
+  .glass-card:hover {
+    @apply shadow-glass scale-[1.02];
+  }
+
+  /* Premium buttons */
+  .btn-primary {
+    @apply bg-primary text-white px-6 py-3 rounded-xl font-semibold 
+           transition-all duration-200 transform hover:scale-105 hover:shadow-glow
+           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none;
+  }
+
+  .btn-secondary {
+    @apply bg-surface text-text-primary border border-border px-6 py-3 rounded-xl font-semibold
+           transition-all duration-200 transform hover:scale-105 hover:bg-card hover:shadow-glass-sm
+           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none;
+  }
+
+  .btn-ghost {
+    @apply text-text-secondary hover:text-text-primary px-4 py-2 rounded-lg font-medium
+           transition-all duration-200 hover:bg-surface
+           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50;
+  }
+
+  /* Input fields */
+  .input-field {
+    @apply bg-surface border border-border rounded-xl px-4 py-3 text-text-primary
+           placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary 
+           focus:border-transparent transition-all duration-200;
+  }
+
+  .input-field:focus {
+    @apply shadow-glow;
+  }
+
+  /* Tab styles */
+  .tab-button {
+    @apply px-1 py-4 font-medium text-text-secondary transition-all duration-200 
+           relative whitespace-nowrap;
+  }
+
+  .tab-button::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-full h-0.5 bg-primary transform scale-x-0 
+           transition-transform duration-200 ease-out;
+  }
+
+  .tab-button.active {
+    @apply text-primary;
+  }
+
+  .tab-button.active::after {
+    @apply scale-x-100;
+  }
+
+  .tab-button:hover:not(.active) {
+    @apply text-text-primary;
+  }
+
+  /* Navigation */
+  .nav-item {
+    @apply flex items-center px-4 py-3 text-text-secondary rounded-xl
+           transition-all duration-200 hover:bg-surface hover:text-text-primary;
+  }
+
+  .nav-item.active {
+    @apply bg-primary bg-opacity-10 text-primary;
+  }
+
+  /* Loading spinner */
+  .spinner {
+    @apply animate-spin;
+  }
+
+  /* Fade in animation */
+  .fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  /* Collapsible content */
+  .collapsible-content {
+    @apply overflow-hidden transition-all duration-300 ease-in-out;
+  }
+}
+
+/* Utility classes */
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent;
+  }
+
+  .border-gradient {
+    background: linear-gradient(135deg, #6366f1, #818cf8);
+    padding: 1px;
+    border-radius: 0.75rem;
+  }
+
+  .border-gradient > div {
+    background: inherit;
+    border-radius: calc(0.75rem - 1px);
+  }
+}
+
+/* Selection styles */
+::selection {
+  @apply bg-primary bg-opacity-20 text-text-primary;
+}
+
+/* Focus visible */
+.focus-visible:focus-visible {
+  @apply outline-none ring-2 ring-primary ring-opacity-50 ring-offset-2 ring-offset-background;
+}

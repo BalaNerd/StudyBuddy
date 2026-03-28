@@ -2,14 +2,14 @@
 Vector Store Module
 
 This module implements a FAISS-based vector database for semantic search.
-Uses IndexFlatL2 for exact similarity search (L2 distance = Euclidean distance).
-For normalized embeddings, L2 distance is equivalent to cosine distance.
+Uses IndexFlatIP for cosine similarity with normalized embeddings.
 
-Why FAISS?
-- Fast similarity search on large vector collections
-- Efficient indexing and retrieval
-- Supports saving/loading indices
-- Industry-standard for production RAG systems
+Why IndexFlatIP?
+- Direct inner product similarity (equivalent to cosine for normalized vectors)
+- More intuitive similarity scores (higher = more similar)
+- Better performance for normalized embeddings
+- Industry standard for production RAG systems
+
 """
 
 import faiss
@@ -21,10 +21,10 @@ from typing import List, Tuple, Optional
 
 class VectorStore:
     """
-    FAISS-based vector store for semantic search.
+    FAISS-based vector store for semantic search using cosine similarity.
     
     Attributes:
-        index: FAISS index instance
+        index: FAISS index instance (IndexFlatIP for cosine similarity)
         texts: List of text chunks corresponding to vectors
         dimension: Dimension of stored vectors
     """
@@ -34,10 +34,11 @@ class VectorStore:
         Initialize the vector store.
         
         Args:
-            dimension: Dimension of vectors to store (e.g., 384 for all-MiniLM-L6-v2)
+            dimension: Dimension of vectors to store (e.g., 768 for all-mpnet-base-v2)
         """
         self.dimension = dimension
-        self.index = faiss.IndexFlatL2(dimension)  # L2 distance for normalized embeddings
+        # Use IndexFlatIP for cosine similarity with normalized embeddings
+        self.index = faiss.IndexFlatIP(dimension)
         self.texts: List[str] = []
     
     def add_vectors(self, vectors: np.ndarray, texts: List[str]) -> None:
@@ -45,7 +46,7 @@ class VectorStore:
         Add vectors and corresponding texts to the store.
         
         Args:
-            vectors: Numpy array of shape (n_vectors, dimension)
+            vectors: Numpy array of shape (n_vectors, dimension) - should be normalized
             texts: List of text strings corresponding to vectors
             
         Raises:
@@ -64,6 +65,12 @@ class VectorStore:
         # Ensure vectors are float32 (FAISS requirement)
         vectors = vectors.astype('float32')
         
+        # Verify vectors are normalized (critical for IndexFlatIP)
+        norms = np.linalg.norm(vectors, axis=1, keepdims=True)
+        if not np.allclose(norms, 1.0, atol=1e-6):
+            print("Warning: Vectors are not normalized. Normalizing now...")
+            vectors = vectors / (norms + 1e-8)
+        
         # Add to FAISS index
         self.index.add(vectors)
         
@@ -72,14 +79,14 @@ class VectorStore:
     
     def search(self, query_vector: np.ndarray, k: int = 5) -> List[Tuple[str, float]]:
         """
-        Search for most similar vectors.
+        Search for most similar vectors using cosine similarity.
         
         Args:
-            query_vector: Query vector of shape (dimension,) or (1, dimension)
+            query_vector: Query vector of shape (dimension,) or (1, dimension) - should be normalized
             k: Number of results to return
             
         Returns:
-            List of tuples (text, distance) sorted by similarity (lower distance = more similar)
+            List of tuples (text, similarity_score) sorted by similarity (higher = more similar)
             
         Raises:
             ValueError: If query dimension doesn't match store dimension
@@ -92,21 +99,26 @@ class VectorStore:
                 f"Query dimension {query_vector.shape[1]} doesn't match store dimension {self.dimension}"
             )
         
-        # Ensure float32
+        # Ensure float32 and normalized
         query_vector = query_vector.astype('float32')
+        
+        # Normalize query vector
+        norm = np.linalg.norm(query_vector)
+        if norm > 0:
+            query_vector = query_vector / norm
         
         # Search in FAISS
         k = min(k, self.index.ntotal)  # Don't request more than available
-        distances, indices = self.index.search(query_vector, k)
+        similarities, indices = self.index.search(query_vector, k)
         
-        # Convert to list of (text, distance) tuples
+        # Convert to list of (text, similarity) tuples
         results = []
-        for dist, idx in zip(distances[0], indices[0]):
+        for similarity, idx in zip(similarities[0], indices[0]):
             if idx < len(self.texts):
-                # Convert L2 distance to similarity score (lower distance = higher similarity)
-                # For normalized vectors, distance ranges from 0 to 2
-                similarity = 1.0 / (1.0 + dist)  # Convert distance to similarity
-                results.append((self.texts[idx], float(similarity)))
+                # IndexFlatIP returns inner product (cosine similarity for normalized vectors)
+                # Range: [-1, 1], where 1 = identical, 0 = orthogonal, -1 = opposite
+                similarity_score = float(similarity)
+                results.append((self.texts[idx], similarity_score))
         
         return results
     

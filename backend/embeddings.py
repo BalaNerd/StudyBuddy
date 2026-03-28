@@ -2,13 +2,14 @@
 Embeddings Module
 
 This module handles text embeddings using SentenceTransformers.
-Uses 'all-MiniLM-L6-v2' model for efficient semantic representations.
+Uses 'sentence-transformers/all-mpnet-base-v2' model for better semantic representations.
 
-Why Embeddings Instead of Keyword Search?
-- Semantic understanding: "car" and "automobile" are similar
-- Context awareness: "bank" (financial) vs "bank" (river)
-- Handles synonyms and paraphrasing
-- Better for conceptual queries
+Why all-mpnet-base-v2?
+- Better semantic understanding than MiniLM
+- Higher dimensional embeddings (768 vs 384)
+- Improved performance on question-answering tasks
+- Better at capturing nuanced relationships
+
 """
 
 import numpy as np
@@ -25,12 +26,12 @@ class EmbeddingGenerator:
         model_name: Name of the model being used
     """
     
-    def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
+    def __init__(self, model_name: str = "sentence-transformers/all-mpnet-base-v2"):
         """
         Initialize the embedding generator.
         
         Args:
-            model_name: Name of the SentenceTransformer model (default: all-MiniLM-L6-v2)
+            model_name: Name of the SentenceTransformer model (default: all-mpnet-base-v2)
         """
         print(f"Loading embedding model: {model_name}")
         self.model = SentenceTransformer(model_name)
@@ -45,7 +46,7 @@ class EmbeddingGenerator:
             texts: Single text string or list of text strings
             
         Returns:
-            Numpy array of embeddings (normalized)
+            Numpy array of embeddings (normalized for cosine similarity)
             Shape: (n_texts, embedding_dim) for list, (embedding_dim,) for single text
         """
         if isinstance(texts, str):
@@ -54,13 +55,22 @@ class EmbeddingGenerator:
         if not texts:
             raise ValueError("Empty text list provided")
         
-        # Generate embeddings
+        # Generate embeddings with L2 normalization
         embeddings = self.model.encode(
             texts,
             convert_to_numpy=True,
-            normalize_embeddings=True,  # Normalize for cosine similarity
-            show_progress_bar=len(texts) > 10
+            normalize_embeddings=True,  # Critical for cosine similarity
+            show_progress_bar=len(texts) > 10,
+            batch_size=32,  # Optimize batch size
+            device='cpu'  # Ensure CPU usage for consistency
         )
+        
+        # Verify embeddings are properly normalized
+        norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
+        if not np.allclose(norms, 1.0, atol=1e-6):
+            # Re-normalize if needed
+            embeddings = embeddings / (norms + 1e-8)
+            print("Warning: Re-normalized embeddings")
         
         return embeddings
     
@@ -71,6 +81,6 @@ class EmbeddingGenerator:
         Returns:
             Embedding dimension
         """
-        # all-MiniLM-L6-v2 produces 384-dimensional embeddings
+        # all-mpnet-base-v2 produces 768-dimensional embeddings
         test_embedding = self.generate_embeddings("test")
         return test_embedding.shape[-1]
