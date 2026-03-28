@@ -1,8 +1,8 @@
 # AI Study Partner - StudyBuddy
 
-> **Context-Aware Question Answering from PDFs**
+> **Modern RAG-Powered Document Q&A with Premium UI**
 
-A production-ready RAG (Retrieval-Augmented Generation) system that intelligently answers questions from your PDF documents. Never worries about hallucinations—it only answers from what's in your uploaded content.
+A production-ready RAG (Retrieval-Augmented Generation) system with a beautiful React frontend and Flask backend. Intelligently answers questions from your PDF documents with accurate, context-aware responses.
 
 ---
 
@@ -10,361 +10,198 @@ A production-ready RAG (Retrieval-Augmented Generation) system that intelligentl
 
 | Feature | Description |
 |---------|-------------|
+| 🎨 **Premium UI** | Modern React + Tailwind CSS interface with glassmorphism design |
 | 📄 **PDF Processing** | Extract and process text from multi-page PDFs |
-| 🔍 **Semantic Search** | Find relevant content using embeddings (not just keywords) |
-| 💡 **Context-Aware Answers** | Generate answers grounded in your documents |
-| 🛡️ **Anti-Hallucination** | Strict prompting ensures no made-up answers |
-| 📋 **Auto Summarization** | Generate summaries of your uploaded notes |
-| 🎨 **Web Interface** | Clean, user-friendly Gradio UI |
+| 🔍 **Enhanced Search** | Semantic search with `all-mpnet-base-v2` embeddings |
+| 💡 **Smart Answers** | Flexible prompting that avoids "I don't know" when possible |
+| 📋 **Auto Summarization** | Clean, readable summaries with BART-large-cnn |
+| 🌗 **Dark Mode** | Beautiful light/dark theme with smooth transitions |
+| ⚙️ **Configurable** | Adjustable AI parameters (top_k, threshold, chunk_size) |
+| 🔄 **Global State** | Zustand state management with document persistence |
 
 ---
 
-## 🏗️ How It Works
+## 🏗️ Architecture
 
-This system implements a **Retrieval-Augmented Generation (RAG)** pipeline:
-
-```
-PDF → Extraction → Chunking → Embeddings → Vector Search → Retrieval → Answer Generation
-```
-
-### System Architecture
+### Modern Full-Stack Design
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                   User Question                         │
+│                   React Frontend                        │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐       │
+│  │   Upload    │ │   QA Chat   │ │ Summarizer  │       │
+│  │   Section   │ │   Section   │ │   Section   │       │
+│  └─────────────┘ └─────────────┘ └─────────────┘       │
+│         ┌─────────────┐ ┌─────────────┐               │
+│         │   Settings  │ │   Sidebar   │               │
+│         │   Section   │ │ Navigation │               │
+│         └─────────────┘ └─────────────┘               │
+└────────────────────┬────────────────────────────────────┘
+                     ↓ REST API
+┌─────────────────────────────────────────────────────────┐
+│                  Flask Backend                          │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐       │
+│  │   Upload    │ │     QA      │ │  Summarize  │       │
+│  │   Endpoint  │ │  Endpoint   │ │  Endpoint   │       │
+│  └─────────────┘ └─────────────┘ └─────────────┘       │
+│         ┌─────────────┐ ┌─────────────┐               │
+│         │   Settings  │ │   Document  │               │
+│         │  Endpoint   │ │   Status    │               │
+│         └─────────────┘ └─────────────┘               │
 └────────────────────┬────────────────────────────────────┘
                      ↓
-         ┌───────────────────────────┐
-         │  Convert to Embedding     │
-         │  (semantic vector)        │
-         └────────────┬──────────────┘
-                      ↓
-      ┌──────────────────────────────────┐
-      │  Search Vector Store (FAISS)     │
-      │  Find 5 most similar chunks      │
-      └────────────┬─────────────────────┘
-                   ↓
-    ┌──────────────────────────────────────┐
-    │  Retrieve Relevant PDF Chunks        │
-    │  (with context around them)          │
-    └────────────┬───────────────────────────┘
-                 ↓
-    ┌────────────────────────────────────────────┐
-    │  Generate Answer using T5 Model            │
-    │  (with strict: "use only this context")    │
-    └────────────┬──────────────────────────────┘
-                 ↓
-    ┌────────────────────────────────────────┐
-    │  Return Answer or "I don't know"       │
-    │  (prevents hallucinations)             │
-    └────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│                RAG Pipeline                             │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐       │
+│  │   Embed     │ │   Vector    │ │   Retrieve   │       │
+│  │  Generator  │ │    Store    │ │     -er      │       │
+│  └─────────────┘ └─────────────┘ └─────────────┘       │
+│         ┌─────────────┐ ┌─────────────┐               │
+│         │   Answer    │ │  Summarizer │               │
+│         │ Generator   │ │             │               │
+│         └─────────────┘ └─────────────┘               │
+└─────────────────────────────────────────────────────────┘
 ```
 
-### Core Components
+### Technology Stack
 
-| Component | File | Purpose |
-|-----------|------|---------|
-| 📄 PDF Processor | `pdf_processor.py` | Extracts text from PDFs using PyPDF2 |
-| ✂️ Text Chunker | `text_chunker.py` | Splits text into semantic chunks with overlap |
-| 🔢 Embeddings | `embeddings.py` | Converts text to semantic vectors |
-| 📊 Vector Store | `vector_store.py` | FAISS-based similarity search |
-| 🎯 Retriever | `retriever.py` | Finds relevant chunks for queries |
-| 💬 Answer Generator | `answer_generator.py` | Generates grounded answers from context |
-| 📝 Summarizer | `summarizer.py` | Creates document summaries |
-| 🔗 RAG Pipeline | `rag_pipeline.py` | Orchestrates all components |
-| 🎨 UI | `app.py` | Gradio web interface |
+**Frontend:**
+- ⚛️ **React 18** - Modern UI framework
+- 🎨 **Tailwind CSS** - Utility-first styling with glassmorphism
+- 🔄 **Zustand** - Lightweight state management
+- 🌗 **Theme Context** - Dark/light mode with persistence
+- 📱 **Responsive Design** - Mobile-first approach
+
+**Backend:**
+- 🌶️ **Flask** - Lightweight REST API
+- 🔍 **FAISS** - High-performance vector search
+- 🤖 **Transformers** - HuggingFace models
+- 🧠 **PyTorch** - Deep learning framework
+
+**AI Models:**
+- 🎯 **all-mpnet-base-v2** - 768-dim semantic embeddings
+- 💬 **google/flan-t5-base** - Flexible answer generation
+- 📝 **facebook/bart-large-cnn** - Clean summarization
 
 ---
 
-## ⚡ Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.8+ 
-- pip package manager
+- Python 3.8+
+- Node.js 16+
+- Git
 
-### Installation (3 Steps)
+### Installation (5 Steps)
 
-**1. Install dependencies:**
+**1. Clone the repository:**
 ```bash
+git clone https://github.com/Vagvedi/StudyBuddy.git
+cd StudyBuddy
+```
+
+**2. Setup Backend:**
+```bash
+cd backend
 pip install -r requirements.txt
 ```
 
-> **Note:** First run downloads pre-trained models (~2-3 GB):
-> - `all-MiniLM-L6-v2` (embeddings, ~90 MB)
-> - `google/flan-t5-base` (answering, ~990 MB)  
-> - `facebook/bart-large-cnn` (summarization, ~1.6 GB)
-
-**2. Launch the app:**
+**3. Setup Frontend:**
 ```bash
+cd ../frontend
+npm install
+```
+
+**4. Start Backend:**
+```bash
+cd ../backend
 python app.py
 ```
 
-**3. Open in browser:**
+**5. Start Frontend:**
+```bash
+cd ../frontend
+npm start
 ```
-http://localhost:7860
+
+**6. Open in browser:**
+```bash
+http://localhost:3000
 ```
 
-### Your First Question
+---
 
-1. 📤 Upload a PDF (lecture notes, textbook, etc.)
-2. ⏳ Click "Process PDF" and wait for indexing
-3. ❓ Switch to "Ask Questions" tab
-4. 💬 Try: *"What is this document about?"*
-5. ✅ Get an answer grounded in your PDF!
+## 🎯 How to Use
 
-### Programmatic Usage
+### 1. Upload Document
+- 📤 Drag & drop or click to upload PDF
+- ⚙️ Configure AI parameters (optional)
+- 🔄 Click "Process Document"
+- ✅ See processing status and results
 
-See [example_usage.py](example_usage.py) for direct Python integration:
+### 2. Ask Questions
+- 💬 Type your question in the chat interface
+- 🔍 View retrieved context with relevance scores
+- 💡 Get intelligent answers from your document
+- 📊 See similarity scores for transparency
+
+### 3. Generate Summary
+- 📋 Click "Generate Summary" button
+- ⏱️ Wait for AI to process your document
+- 📝 Get clean, readable summary
+- 📊 View summary statistics (words, characters, etc.)
+
+### 4. Configure Settings
+- ⚙️ Adjust AI parameters:
+  - **Top-K Results**: 1-10 chunks to retrieve
+  - **Similarity Threshold**: 0.1-1.0 minimum relevance
+  - **Chunk Size**: 500-2000 tokens per chunk
+  - **Debug Mode**: Show detailed processing info
+- 🌗 Toggle between light/dark themes
+- 💾 Settings persist across sessions
+
+---
+
+## 🔧 Advanced Configuration
+
+### Backend Settings
+
+Edit `backend/app.py` to customize:
 
 ```python
-from rag_pipeline import RAGPipeline
+# Default AI parameters
+DEFAULT_SETTINGS = {
+    'top_k': 8,           # Retrieved chunks
+    'threshold': 0.2,     # Similarity threshold
+    'chunk_size': 900,    # Tokens per chunk
+    'debug': False        # Debug mode
+}
 
-pipeline = RAGPipeline()
-chunks, text = pipeline.process_pdf("notes.pdf")
-pipeline.index_documents(chunks)
-answer, context_chunks = pipeline.answer_question("What's the main topic?")
-print(f"Answer: {answer}")
-```
-
----
-
-## 🎓 How It Works (Detailed)
-
-### 1️⃣ Text Chunking: Breaking Documents Into Pieces
-
-**Why chunk?** Large documents exceed model limits. Chunking allows processing long PDFs efficiently.
-
-```
-Original: "Machine learning is... [500 words] ...deep learning."
-
-After Chunking:
-├─ Chunk 1: "Machine learning is... [500 tokens]"
-├─ Chunk 2: "[100 token overlap] ...deep learning [400 new]"
-└─ Chunk 3: "[100 token overlap] ...continues..."
-```
-
-**Our Strategy:**
-- **Size:** ~500 tokens per chunk (optimal balance)
-- **Overlap:** ~100 tokens (preserves context at boundaries)
-- **Sentence-Aware:** Never cuts mid-sentence (better semantics)
-- **Benchmark:** 1 token ≈ 0.75 words in English
-
----
-
-### 2️⃣ Embeddings: Turning Words Into Numbers
-
-**Concept:** Convert text into numerical vectors that capture semantic meaning.
-
-```
-Text                    →  Embedding Vector (384 dimensions)
-"car"                   →  [0.123, -0.456, 0.789, ...]
-"automobile"            →  [0.124, -0.455, 0.791, ...]  ← Very similar!
-"weather is sunny"      →  [-0.800, 0.234, -0.567, ...]  ← Different!
-```
-
-**Keyword Search vs. Semantic Search:**
-
-| Aspect | Keyword | Semantic |
-|--------|---------|----------|
-| **Synonyms** | ❌ "car" ≠ "automobile" | ✅ Handles synonyms |
-| **Context** | ❌ "bank" confused (river/finance) | ✅ Understands context |
-| **Flexibility** | ❌ Exact match only | ✅ Similar meanings work |
-| **Quality** | ❌ High false positives | ✅ Accurate results |
-
-**Our Model: `all-MiniLM-L6-v2`**
-- 384-dimensional embeddings
-- Fast & efficient
-- High-quality semantic search
-- Optimized for cosine similarity
-
----
-
-### 3️⃣ Vector Search: Finding Relevant Chunks
-
-**Process:**
-```
-User Question: "What is neural network?"
-    ↓
-Convert to Embedding [0.456, -0.123, ...]
-    ↓
-Compare with 5,000+ document chunks
-    ↓
-Return Top 5 most similar chunks
-    ↓
-Display to answer generator
-```
-
-**Technology: FAISS (Facebook AI Similarity Search)**
-- Ultra-fast similarity search
-- Uses L2 distance (Euclidean) for normalized embeddings
-- Handles millions of vectors efficiently
-- Production-ready performance
-
----
-
-### 4️⃣ RAG: Retrieval + Generation
-
-**What's RAG?** Combines retrieval (finding info) + generation (creating answers)
-
-```
-Traditional LLM Problems:
-- ❌ Makes up facts (hallucination)
-- ❌ Uses only training data knowledge
-- ❌ Can't learn from new documents
-
-RAG Solution:
-- ✅ Answers only from YOUR documents
-- ✅ Transparent: shows source chunks
-- ✅ "I don't know" when answer missing
-```
-
-**Our RAG Workflow:**
-1. User asks question
-2. System retrieves relevant PDF chunks
-3. System generates answer from retrieved context
-4. If no relevant chunks → "I don't know"
-
----
-
-### 5️⃣ Answer Generation: T5 Model
-
-**Model: `google/flan-t5-base`**
-- T5 (Text-to-Text Transfer Transformer) architecture
-- 250M parameters (efficient & fast)
-- Trained on diverse NLP tasks
-- Excellent for QA without hallucination
-
-**Anti-Hallucination Prompt:**
-```
-Answer the question using ONLY the information provided below. 
-If the context does not contain the answer, respond with "I don't know."
-
-Context: [Your PDF chunks here]
-Question: [User question]
-Answer (using ONLY context above):
-```
-
----
-
-### 6️⃣ Summarization: BART Model
-
-**Model: `facebook/bart-large-cnn`**
-- Bidirectional Auto-Regressive Transformer (BART)
-- Trained on CNN/DailyMail news (excellent summarization)
-- Generates concise overviews
-- Great for understanding document structure
-
-**Use Cases:**
-- Quick overview of lecture notes
-- Understand what's in a document before asking questions
-- Create study guides
-
----
-
-## ⚙️ Configuration
-
-Customize the pipeline in [app.py](app.py):
-
-```python
+# Model selection
 pipeline = RAGPipeline(
-    embedding_model="all-MiniLM-L6-v2",         # Semantic embeddings
-    answer_model="google/flan-t5-base",         # QA generation  
-    summarizer_model="facebook/bart-large-cnn", # Summarization
-    chunk_size=500,                             # Tokens per chunk
-    chunk_overlap=100,                          # Overlap tokens
-    top_k=5                                     # Retrieved chunks
+    embedding_model="sentence-transformers/all-mpnet-base-v2",
+    answer_model="google/flan-t5-base", 
+    summarizer_model="facebook/bart-large-cnn",
+    chunk_size=900,
+    chunk_overlap=180
 )
 ```
 
----
+### Frontend Customization
 
-## ⚠️ Limitations & Considerations
+Edit `frontend/src/tailwind.config.js`:
 
-| Limitation | Details | Workaround |
-|-----------|---------|-----------|
-| **Model Size** | T5-base is small (250M params), struggles with complex reasoning | Use T5-large or larger models |
-| **PDF Type** | Works with text PDFs; scanned images need OCR | Use high-quality text PDFs |
-| **Complex Layouts** | Tables, multi-column text may extract poorly | Pre-process PDFs if needed |
-| **Token Limits** | Max 512 tokens for T5 model | Increase chunk size or use longer-context models |
-| **Retrieval Gaps** | May miss chunks if query wording differs significantly | Rephrase questions differently |
-| **Single PDF** | Processes one PDF at a time | Can extend to multi-PDF support |
-| **No Memory** | Each question is independent | Can add conversation history |
-| **Long Answers** | Generates concise answers, not long-form content | Fine-tune model for longer outputs |
-
----
-
-## 💡 Usage Examples
-
-### Example 1: Basic Q&A
-
-```
-📤 Upload: lecture_notes.pdf
-✅ Process PDF
-❓ Question: "What are the main topics covered?"
-💬 Answer: [Generated from your PDF]
-```
-
-### Example 2: Get a Summary
-
-```
-📤 Upload: textbook_chapter.pdf
-🔄 Go to "Summarize" tab
-📝 Click "Generate Summary"
-✅ Get concise overview of content
-```
-
-### Example 3: Programmatic Integration
-
-```python
-from rag_pipeline import RAGPipeline
-
-# Initialize
-pipeline = RAGPipeline()
-
-# Process PDF
-chunks, text = pipeline.process_pdf("notes.pdf")
-pipeline.index_documents(chunks)
-
-# Ask multiple questions
-questions = [
-    "What is the main topic?",
-    "List the key concepts",
-    "Summarize in one sentence"
-]
-
-for q in questions:
-    answer, sources = pipeline.answer_question(q)
-    print(f"Q: {q}\nA: {answer}\n")
-```
-
----
-
-## 🔬 Technical Details
-
-### Token Counting
-```
-"Hello world, this is a test."
-↓
-T5 Tokenizer
-↓
-['Hello', 'world', ',', 'this', 'is', 'a', 'test', '.']
-↓
-8 tokens ≈ 10-11 words
-```
-**Rule of thumb:** 1 token ≈ 0.75 words in English
-
-### Similarity Scoring
-- **Range:** 0.0 (completely different) to 1.0 (identical)
-- **Default threshold:** 0.3 (30% match)
-- **Lower threshold** = more results (may include noise)
-- **Higher threshold** = fewer results (may miss relevant)
-
-### Retrieval Strategy
-```
-Retrieved Chunks = 5 (default)
-           ↓
-More chunks = more context (slower)
-Fewer chunks = faster (may miss context)
+```javascript
+// Custom theme colors
+theme: {
+  extend: {
+    colors: {
+      primary: '#6366f1',
+      secondary: '#8b5cf6',
+      accent: '#ec4899'
+    }
+  }
+}
 ```
 
 ---
@@ -374,72 +211,104 @@ Fewer chunks = faster (may miss context)
 ```
 StudyBuddy/
 │
-├── 🎨 UI & Main
-│   ├── app.py                 # Gradio web interface
-│   └── example_usage.py       # Python integration example
+├── 🎨 Frontend (React)
+│   ├── public/
+│   │   └── index.html
+│   ├── src/
+│   │   ├── components/          # React components
+│   │   │   ├── AskSection.js
+│   │   │   ├── SummarizeSection.js
+│   │   │   ├── UploadSection.js
+│   │   │   ├── SettingsSection.js
+│   │   │   ├── Sidebar.js
+│   │   │   └── DocumentHeader.js
+│   │   ├── contexts/           # React contexts
+│   │   │   └── ThemeContext.js
+│   │   ├── stores/             # Zustand stores
+│   │   │   └── documentStore.js
+│   │   ├── App.js             # Main app component
+│   │   └── index.js           # Entry point
+│   ├── package.json
+│   └── tailwind.config.js
 │
-├── 🔗 Core Pipeline
-│   └── rag_pipeline.py        # Main orchestrator
-│
-├── 📄 Document Processing
-│   ├── pdf_processor.py       # Extract text from PDFs
-│   └── text_chunker.py        # Smart text chunking
-│
-├── 🧠 AI Models
-│   ├── embeddings.py          # Generate embeddings
-│   ├── answer_generator.py    # Generate answers (T5)
-│   └── summarizer.py          # Summarize docs (BART)
-│
-├── 📊 Data Management
+├── 🌶️ Backend (Flask)
+│   ├── rag_pipeline.py        # Main RAG orchestrator
+│   ├── embeddings.py          # Embedding generation
 │   ├── vector_store.py        # FAISS vector database
-│   ├── retriever.py           # Semantic retrieval
+│   ├── text_chunker.py        # Smart text chunking
+│   ├── answer_generator      # Answer generation
+│   ├── summarizer.py          # Document summarization
+│   ├── pdf_processor.py       # PDF text extraction
+│   ├── app.py                 # Flask API server
 │   └── requirements.txt       # Python dependencies
 │
-└── 📖 Documentation
-    └── README.md              # This file
+├── 📖 Documentation
+│   ├── README.md              # This file
+│   └── PROJECT_STRUCTURE.md   # Detailed structure
+│
+└── 🚀 Deployment
+    ├── start.bat              # Windows startup script
+    └── .gitignore            # Git ignore rules
 ```
 
 ---
 
-## 🛠️ How to Extend
+## 🎨 UI Features
 
-### Add Multi-PDF Support
-```python
-# Support multiple PDFs in one search
-pipeline.add_pdf("notes.pdf")
-pipeline.add_pdf("textbook.pdf")
-answer = pipeline.answer_question("Combine knowledge from both")
-```
+### Glassmorphism Design
+- 🪟 Translucent cards with backdrop blur
+- 🌈 Smooth color transitions
+- ✨ Subtle animations and micro-interactions
+- 📱 Fully responsive layout
 
-### Improve Answer Quality
-- Use larger models: `google/flan-t5-large` or `gpt-3.5`
-- Implement chunk re-ranking
-- Add confidence scores
-- Fine-tune on domain data
+### Interactive Elements
+- 🔄 Loading spinners with smooth animations
+- 📊 Progress indicators for document processing
+- 🎯 Hover effects and active states
+- 📋 Collapsible context sections
 
-### Add Conversation Memory
-- Store conversation history
-- Use previous context in retrieval
-- Implement follow-up questions
-- Add chat-like interactions
-
-### Support More File Types
-```python
-# Easy to add:
-- .docx files (python-docx)
-- .txt files (plain text)
-- .md files (markdown)
-- Web pages (requests + BeautifulSoup)
-```
+### Theme System
+- 🌞 **Light Mode**: Clean, bright interface
+- 🌙 **Dark Mode**: Easy on the eyes for long sessions
+- 🔄 **Auto Switch**: Follows system preference
+- 💾 **Persistence**: Remembers your choice
 
 ---
 
-## 📊 Performance Metrics
+## 🧠 AI Improvements
+
+### Enhanced Retrieval
+- ✅ **Better Embeddings**: `all-mpnet-base-v2` (768-dim vs 384-dim)
+- ✅ **Cosine Similarity**: Direct inner product with normalized vectors
+- ✅ **Flexible Threshold**: Lower threshold (0.2) for more results
+- ✅ **Always Answer**: Attempts partial answers instead of refusing
+
+### Improved Chunking
+- ✅ **Larger Chunks**: 900 tokens (vs 500) for better context
+- ✅ **More Overlap**: 180 tokens (vs 100) to preserve information
+- ✅ **Clean Boundaries**: Removes incomplete sentences
+- ✅ **Quality Filter**: Filters out very short chunks
+
+### Smart Answering
+- ✅ **Flexible Prompting**: "Answer may be phrased differently"
+- ✅ **Partial Information**: Extracts relevant info when full answer unavailable
+- ✅ **Clean Output**: Fixes spacing, capitalization, formatting
+- ✅ **Context Scores**: Shows relevance transparency
+
+### Readable Summaries
+- ✅ **Input Cleaning**: Fixes spacing before processing
+- ✅ **Hierarchical**: Handles very long documents intelligently
+- ✅ **Post-Processing**: Proper capitalization and sentence structure
+- ✅ **Statistics**: Shows word count, reading time, etc.
+
+---
+
+## 📊 Performance
 
 | Component | Speed | Model Size | Memory |
 |-----------|-------|------------|--------|
-| **Embeddings** | ~1ms per chunk | 90 MB | Low |
-| **Retrieval** | ~5-10ms (5 chunks) | In-memory | Variable |
+| **Embeddings** | ~2ms per chunk | 420 MB | Low |
+| **Retrieval** | ~5-10ms (8 chunks) | In-memory | Variable |
 | **Answer Gen** | ~1-2s per question | 990 MB | ~2 GB |
 | **Summarization** | ~3-5s per doc | 1.6 GB | ~2 GB |
 
@@ -447,60 +316,189 @@ answer = pipeline.answer_question("Combine knowledge from both")
 
 ---
 
-## 📞 Troubleshooting
+## 🛠️ API Endpoints
 
-**Q: Model downloads are slow?**  
-A: First-time setup downloads ~2-3 GB. Be patient! Subsequent runs use cache.
+### Document Management
+- `POST /api/upload` - Upload and process PDF
+- `GET /api/document/status` - Get current document status
+- `POST /api/document/clear` - Clear stored document
 
-**Q: "I don't know" for every question?**  
-A: Check if PDF processed correctly, try different question phrasing, or upload higher-quality PDF.
+### Question Answering
+- `POST /api/ask` - Ask questions about uploaded document
+- `POST /api/summarize` - Generate document summary
 
-**Q: Answers seem off-topic?**  
-A: Your PDF might have poor text extraction. Try different PDF or rephrase question.
+### Settings
+- `GET /api/settings` - Get current AI parameters
+- `POST /api/settings` - Update AI parameters
 
-**Q: Running out of memory?**  
-A: Reduce `chunk_size`, process smaller PDFs, or use GPU acceleration.
+### Health Check
+- `GET /api/health` - Check system status
 
 ---
 
-## 📚 Learn More
+## 🔧 Development
 
-- **RAG Papers:** [Retrieval-Augmented Generation](https://arxiv.org/abs/2005.11401)
-- **T5 Model:** [Exploring the Limits of Transfer Learning with T5](https://arxiv.org/abs/1910.10683)
-- **FAISS:** [Billion-scale Similarity Search](https://ai.facebook.com/blog/faiss-a-library-for-efficient-similarity-search/)
-- **HuggingFace:** [Transformers Models Hub](https://huggingface.co/models)
+### Adding New Features
+
+**1. Frontend Components:**
+```javascript
+// src/components/NewFeature.js
+import React from 'react';
+
+const NewFeature = () => {
+  return <div>New Feature Content</div>;
+};
+
+export default NewFeature;
+```
+
+**2. Backend Endpoints:**
+```python
+@app.route('/api/new-feature', methods=['POST'])
+def new_feature():
+    data = request.get_json()
+    # Process data
+    return jsonify({'result': 'success'})
+```
+
+**3. State Management:**
+```javascript
+// src/stores/newStore.js
+import { create } from 'zustand';
+
+const useNewStore = create((set) => ({
+  data: null,
+  setData: (data) => set({ data }),
+}));
+
+export default useNewStore;
+```
+
+---
+
+## 📱 Browser Support
+
+| Browser | Version | Status |
+|---------|---------|--------|
+| Chrome | 90+ | ✅ Full Support |
+| Firefox | 88+ | ✅ Full Support |
+| Safari | 14+ | ✅ Full Support |
+| Edge | 90+ | ✅ Full Support |
+
+---
+
+## 🚀 Deployment
+
+### Docker Deployment
+
+**1. Build Backend:**
+```dockerfile
+FROM python:3.9-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+EXPOSE 5000
+CMD ["python", "app.py"]
+```
+
+**2. Build Frontend:**
+```dockerfile
+FROM node:16-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+FROM nginx:alpine
+COPY --from=0 /app/build /usr/share/nginx/html
+```
+
+**3. Docker Compose:**
+```yaml
+version: '3.8'
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+```
+
+---
+
+## 🔒 Security Considerations
+
+- ✅ **CORS Protection**: Configured for frontend domain
+- ✅ **File Validation**: PDF only, size limits enforced
+- ✅ **Input Sanitization**: All inputs validated and cleaned
+- ✅ **No Direct File Access**: Files processed in memory only
+- ✅ **Error Handling**: Graceful error responses, no stack traces
+
+---
+
+## 📈 Future Enhancements
+
+### Planned Features
+- 📚 **Multi-PDF Support**: Search across multiple documents
+- 💬 **Chat History**: Conversation memory and context
+- 🎯 **Document Re-ranking**: Better retrieval with re-ranking
+- 📊 **Analytics**: Usage statistics and insights
+- 🔐 **User Authentication**: Multi-user support
+- 📱 **Mobile App**: React Native version
+
+### AI Improvements
+- 🧠 **Larger Models**: Support for GPT-4, Claude, etc.
+- 🔍 **Hybrid Search**: Combine semantic + keyword search
+- 📝 **Fine-tuning**: Custom models for specific domains
+- 🎯 **Reranking**: Cross-encoder for better relevance
+- 🌐 **Multilingual**: Support for multiple languages
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ---
 
 ## 📄 License
 
-This project is provided as-is for educational and research purposes.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
 ## 🙏 Acknowledgments
 
 Built with:
-- 🤗 **HuggingFace** - Transformer models and tokenizers
+- 🤗 **HuggingFace** - Transformer models and datasets
 - 🔎 **FAISS** - Facebook AI's similarity search library
-- 🎨 **Gradio** - Simple web interfaces for ML models
-- 🔥 **PyTorch** - Deep learning framework
-- 📄 **PyPDF2** - PDF text extraction
+- ⚛️ **React** - Modern UI framework
+- 🌶️ **Flask** - Lightweight web framework
+- 🎨 **Tailwind CSS** - Utility-first CSS framework
+- 🧠 **PyTorch** - Deep learning framework
 
 ---
 
-## 🎯 Next Steps
+## 📞 Support
 
-- ⭐ Star this repo if you find it useful!
-- 📝 Try it with your own PDFs
-- 🔧 Customize models and parameters
-- 🚀 Extend with new features
-- 💬 Share feedback and improvements
-
-**Happy studying! 📚✨**
+- 📧 **Email**: vagved@example.com
+- 🐛 **Issues**: [GitHub Issues](https://github.com/Vagvedi/StudyBuddy/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/Vagvedi/StudyBuddy/discussions)
 
 ---
 
 <p align="center">
-  <b>Built with ❤️ using PyTorch, HuggingFace Transformers, and FAISS</b>
+  <b>🎯 Built with passion for better learning experiences</b>
+  <br>
+  <b>⭐ Star this repo if it helps you study smarter!</b>
 </p>
