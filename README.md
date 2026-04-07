@@ -1,6 +1,6 @@
 # AI Study Partner - StudyBuddy
 
-> **Modern RAG-Powered Document Q&A with Premium UI**
+> **Modern RAG-Powered Document Q&A**
 
 A production-ready RAG (Retrieval-Augmented Generation) system with a beautiful React frontend and Flask backend. Intelligently answers questions from your PDF documents with accurate, context-aware responses.
 
